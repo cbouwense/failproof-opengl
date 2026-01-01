@@ -173,6 +173,10 @@
     <ClCompile Include="..\dependences\stb_truetype\src\stb_truetype.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\openglErrorReporting.cpp" />
+    <ClCompile Include="src\Shader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,3 +1,5 @@
+#include "shader.h"
+
 #define GLFW_INCLUDE_NONE
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -43,19 +45,60 @@ int main() {
 
     enableReportGlErrors();
 
-    // Buffer
 #pragma region buffer
     // Create a variable that will hold the handle to the buffer in VRAM.
     GLuint buffer = 0; 
 
-    // Generate 1 buffer in VRAM and set the handle.
-    glGenBuffers(1, &buffer); 
+    { // Create the buffer in VRAM.
+        glGenBuffers(1, &buffer); // Generate 1 buffer in VRAM and set the handle.
+    }
 
-    // Set our buffer as the one current active.
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    { // Send the data to the buffer in VRAM.
+        // Set our buffer as the one current active.
+        glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-    // Set the data in the currently bound buffer to the triangle data.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(triangleData), triangleData, GL_STATIC_DRAW); 
+        // Set the data in the currently bound buffer to the triangle data. This is the part that actually sends the
+        // data from the CPU to the GPU.
+        glBufferData(GL_ARRAY_BUFFER, sizeof(triangleData), triangleData, GL_STATIC_DRAW); 
+    }
+
+    { // Configure the attribute representing position.
+        // Tell OpenGL that we want to use the 0th vertex attribute (attributes essentially being the fields for vertices).
+        glEnableVertexAttribArray(0);
+
+        // Tell OpenGL how the data is laid out in the buffer for our vertex attribute since there is no standard convention.
+        glVertexAttribPointer(
+            0,        // The vertex attribute for which we are specifying the data layout.
+            3,        // How many components (by count, NOT by size) there are in this attribute. Since we have x,y,z data, this should be 3.
+            GL_FLOAT, // What type the data is. TODO: why do we have to tell it this?
+            GL_FALSE, // Are we sending float data represented as integers?
+            sizeof(float) * 6, // Stride, i.e. how many bytes of data are in each "row".
+            0 // Offset from the beginning of the "row" that this vertex attribute begins.
+        );
+    }
+
+    { // Configure the attribute representing color.
+        // Tell OpenGL that we want to use the 1st vertex attribute (attributes essentially being the fields for vertices).
+        glEnableVertexAttribArray(1);
+
+        // Tell OpenGL how the data is laid out in the buffer for our vertex attribute since there is no standard convention.
+        glVertexAttribPointer(
+            1,        // The vertex attribute for which we are specifying the data layout.
+            3,        // How many components there are in this attribute. Since we have x,y,z data, this should be 3.
+            GL_FLOAT, // What type the data is. TODO: why do we have to tell it this?
+            GL_FALSE, // Are we sending float data represented as integers?
+            sizeof(float) * 6, // Stride, i.e. how many bytes of data are in each "row".
+            (void*)(sizeof(float) * 3) // Offset from the beginning of the "row" that this vertex attribute begins.
+        );
+    }
+#pragma endregion
+
+#pragma region shader loading
+    Shader shader;
+
+    shader.loadShaderProgramFromFile("resources/myshader.vert", "resources/myshader.frag");
+
+    shader.bind();
 #pragma endregion
 
     const float background_color = uint8ToFloat(24);
@@ -64,6 +107,14 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         glClearColor(background_color, background_color, background_color, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Tell OpenGL to draw to the screen.
+        // TODO: are my comments accurate?
+        glDrawArrays(
+            GL_TRIANGLES, // Interpret the data as a triangle.
+            0, // Start from the first vertex.
+            3  // Draw 3 vertices.
+        );
 
         glfwSwapBuffers(window);
         glfwPollEvents();
