@@ -1,0 +1,10 @@
+
+
+	Let's play around with shaders a bit. In the vertex shader, we can multiply the first three components of the position by 0.5. This will make the triangle two times smaller. It should come as no surprise since the coordinates are between -1 and 1. So it will just bring all the points closer to the center. Make sure you leave the last component at 1.
+
+Ok, now let's undo that and let's play with the fragment shader. I will take the first 3 components of the color, notice the syntax that I use, multiply them by 10, then apply a floor, and then divide by 10. This is a trick to reduce the precision of the colors. This is the result. 
+Let's do something else. Let's apply some trigonometric function like cos and also multiply the input by a constant. Cool stuff.
+
+I recommend that you play around with the shaders. And you can also try the shader toy after you get some experience. It is a nice website where you can write shaders in the browser. It's not very difficult; you get the coordinate of your pixel in pixels, so to change to 0-1 values, you divide by the screen resolution, and you also have various inputs like the time that you can use to make animations like this.
+
+

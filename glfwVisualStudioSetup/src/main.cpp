@@ -95,16 +95,17 @@ int main() {
 
 #pragma region shader loading
     Shader shader;
-
     shader.loadShaderProgramFromFile("resources/myshader.vert", "resources/myshader.frag");
-
     shader.bind();
 #pragma endregion
 
     const float background_color = uint8ToFloat(24);
-    std::cout << "background_color: " << background_color << "\n";
 
     while (!glfwWindowShouldClose(window)) {
+        int w = 0, h = 0;
+        glfwGetWindowSize(window, &w, &h);
+        glViewport(0, 0, w, h);
+
         glClearColor(background_color, background_color, background_color, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
