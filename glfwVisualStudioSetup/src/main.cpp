@@ -51,6 +51,19 @@ int main() {
 
     enableReportGlErrors();
 
+#pragma region vao
+
+    // Before we bind our buffers, we can set up this thing called a vertex array object.
+    // This can encapsulate the state of the vertex buffer, index buffer, and attribute
+    // configuration. So, when we set up our buffers after this, since this vao is bound,
+    // they can later be used via this vao.
+
+    GLuint vao = 0;
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+
+#pragma endregion
+
 #pragma region buffer
     // Create a variable that will hold the handle to the buffer in VRAM.
     GLuint buffer = 0; 
@@ -102,15 +115,18 @@ int main() {
 #pragma region index buffer
 
     // Create buffer
-    GLuint bufferHandle = 0;
-    glGenBuffers(1, &bufferHandle);
+    GLuint indexBuffer = 0;
+    glGenBuffers(1, &indexBuffer);
 
     // Populate buffer
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferHandle);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 #pragma endregion
+
+    // Here we unbind the vao (by binding to 0) since we are done putting stuff into it.
+    glBindVertexArray(0);
 
 #pragma region shader loading
     Shader shader;
@@ -119,14 +135,17 @@ int main() {
 #pragma endregion
 
     const float background_color = uint8ToFloat(24);
+    glClearColor(background_color, background_color, background_color, 1.0);
 
     while (!glfwWindowShouldClose(window)) {
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
         glViewport(0, 0, w, h);
 
-        glClearColor(background_color, background_color, background_color, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // Here we just have to bind the vao (not the vertex array, index array, or attributes individually).
+        glBindVertexArray(vao);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
