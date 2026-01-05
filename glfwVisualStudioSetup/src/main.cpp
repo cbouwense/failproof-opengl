@@ -132,6 +132,8 @@ int main() {
     Shader shader;
     shader.loadShaderProgramFromFile("resources/myshader.vert", "resources/myshader.frag");
     shader.bind();
+
+    GLint u_time = shader.getUniformLocation("u_time");
 #pragma endregion
 
     const float background_color = uint8ToFloat(24);
@@ -143,6 +145,9 @@ int main() {
         glViewport(0, 0, w, h);
 
         glClear(GL_COLOR_BUFFER_BIT);
+
+        shader.bind();
+        glUniform1f(u_time, (float)(clock()) / 100.f);
 
         // Here we just have to bind the vao (not the vertex array, index array, or attributes individually).
         glBindVertexArray(vao);
