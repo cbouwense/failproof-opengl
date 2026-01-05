@@ -8,6 +8,10 @@
 
 #include <iostream>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
 float triangleData[] = {
     // Positions       Colors
     // x    y    z     r  g  b
@@ -50,6 +54,12 @@ int main() {
     }
 
     enableReportGlErrors();
+
+#pragma region imgui
+    ImGui::CreateContext();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+#pragma endregion
 
 #pragma region vao
 
@@ -133,12 +143,13 @@ int main() {
     shader.loadShaderProgramFromFile("resources/myshader.vert", "resources/myshader.frag");
     shader.bind();
 
-    GLint u_time = shader.getUniformLocation("u_time");
+    GLint u_time  = shader.getUniformLocation("u_time");
+    GLint u_color = shader.getUniformLocation("u_color");
 #pragma endregion
 
     const float background_color = uint8ToFloat(24);
     glClearColor(background_color, background_color, background_color, 1.0);
-
+ 
     while (!glfwWindowShouldClose(window)) {
         int w = 0, h = 0;
         glfwGetWindowSize(window, &w, &h);
@@ -146,13 +157,33 @@ int main() {
 
         glClear(GL_COLOR_BUFFER_BIT);
 
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        ImGui::Begin("Window");
+        ImGui::Text("Color test");
+        static float color[3] = {0.5, 0.5, 0.5};
+        ImGui::ColorPicker3("Color: ", color);
+        if (ImGui::Button("Press me!")) {
+            std::cout << "The button was pressed!\n";
+        }
+        ImGui::End();
+
         shader.bind();
         glUniform1f(u_time, (float)(clock()) / 100.f);
+        glUniform3fv(u_color, 1, color); 
 
         // Here we just have to bind the vao (not the vertex array, index array, or attributes individually).
         glBindVertexArray(vao);
 
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+
+        ImGui::Render();
+        int display_w = 0, display_h = 0;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
         glfwPollEvents();
