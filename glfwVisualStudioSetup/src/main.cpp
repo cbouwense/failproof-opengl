@@ -10,10 +10,16 @@
 
 float triangleData[] = {
     // Positions       Colors
-    // x   y   z       r  g  b
-       0,  1,  0,      1, 0, 0,
-      -1, -1,  0,      0, 1, 0,
-       1, -1,  0,      0, 0, 1,
+    // x    y    z     r  g  b
+       0.5, 0.5,  0,   1, 0, 0,
+      -0.5, 0.5,  0,   0, 1, 0,
+      -0.5, -0.5, 0,   0, 0, 1,
+       0.5, -0.5, 0,   0, 0, 1
+};
+
+unsigned short indices[] = {
+    0,1,2,
+    0,2,3
 };
 
 const std::uint8_t floatToUint8(const float f) {
@@ -93,6 +99,19 @@ int main() {
     }
 #pragma endregion
 
+#pragma region index buffer
+
+    // Create buffer
+    GLuint bufferHandle = 0;
+    glGenBuffers(1, &bufferHandle);
+
+    // Populate buffer
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferHandle);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+#pragma endregion
+
 #pragma region shader loading
     Shader shader;
     shader.loadShaderProgramFromFile("resources/myshader.vert", "resources/myshader.frag");
@@ -109,13 +128,7 @@ int main() {
         glClearColor(background_color, background_color, background_color, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // Tell OpenGL to draw to the screen.
-        // TODO: are my comments accurate?
-        glDrawArrays(
-            GL_TRIANGLES, // Interpret the data as a triangle.
-            0, // Start from the first vertex.
-            3  // Draw 3 vertices.
-        );
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
